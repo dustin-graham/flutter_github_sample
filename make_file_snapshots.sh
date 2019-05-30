@@ -1,7 +1,7 @@
 mkdir snapshots
 FILE_PATH=$1
 FILENAME=$(basename $FILE_PATH)
-SNAPSHOT_DIRECTORY=$(basename $FILE_PATH .dart)
+SNAPSHOT_DIRECTORY=${FILENAME%.*}
 mkdir -p snapshots/$SNAPSHOT_DIRECTORY
 commits=($(git log --oneline $FILE_PATH | cut -f 1 -d " "))
 LENGTH=${#commits[@]}

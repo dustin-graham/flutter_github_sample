@@ -5,8 +5,8 @@
         "charsPerChange": 5
     },
     {
-        "file": "lib/main.dart",
-        "content" : "snapshots/main/3-main.dart",
+        "file": "gql_docs/operations.gql",
+        "content" : "snapshots/operations/1-operations.gql",
         "charsPerChange": 5
     }
 ]
