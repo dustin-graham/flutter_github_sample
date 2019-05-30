@@ -10,6 +10,7 @@ dependencies:
     sdk: flutter
   graphql_dart: any
   http: ^0.12.0+1
+  bloc: ^0.14.1
 
 dev_dependencies:
   flutter_test:
@@ -20,6 +21,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/.github_key.txt
 
 dependency_overrides:
   graphql_client_generator:
