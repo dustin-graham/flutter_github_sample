@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'github_api_extensions/discriminator.dart' as Discriminator;
 
-void main() => runApp(MyApp());
+void main() {
+  Discriminator.setupDiscriminator();
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
