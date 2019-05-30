@@ -8,5 +8,10 @@
         "file": "gql_docs/operations.gql",
         "content" : "snapshots/operations/1-operations.gql",
         "charsPerChange": 5
+    },
+    {
+        "file": "gql_docs/operations.gql",
+        "content" : "snapshots/operations/2-operations.gql",
+        "charsPerChange": 5
     }
 ]
