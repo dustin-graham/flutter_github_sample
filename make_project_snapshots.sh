@@ -1,0 +1,1 @@
+./make_file_snapshots.sh lib/main.dart
