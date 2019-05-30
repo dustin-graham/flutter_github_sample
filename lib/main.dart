@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_github/repo_search_provider.dart';
 import 'package:graphql_dart/graphql_dart.dart';
 import 'package:http/http.dart';
 import 'package:responsive_scaffold/responsive_scaffold.dart';
+import 'package:flutter/foundation.dart'
+    show debugDefaultTargetPlatformOverride;
 
 import 'bloc/repo_search/repo_search.dart';
 import 'github_api/github_api.dart';
@@ -12,7 +16,23 @@ import 'github_api_extensions/discriminator.dart' as Discriminator;
 void main() async {
   BlocSupervisor.delegate = BasicBlocDelegate();
   Discriminator.setupDiscriminator();
+  _setTargetPlatformForDesktop();
   runApp(MyApp());
+}
+
+/// If the current platform is desktop, override the default platform to
+/// a supported platform (iOS for macOS, Android for Linux and Windows).
+/// Otherwise, do nothing.
+void _setTargetPlatformForDesktop() {
+  TargetPlatform targetPlatform;
+  if (Platform.isMacOS) {
+    targetPlatform = TargetPlatform.iOS;
+  } else if (Platform.isLinux || Platform.isWindows) {
+    targetPlatform = TargetPlatform.android;
+  }
+  if (targetPlatform != null) {
+    debugDefaultTargetPlatformOverride = targetPlatform;
+  }
 }
 
 class MyApp extends StatefulWidget {
@@ -157,7 +177,7 @@ class RepoSearchList extends StatelessWidget {
           },
           slivers: <Widget>[
             SliverAppBar(
-              title: Text("App Bar"),
+              title: Text("Searches"),
             ),
           ],
           tabletFlexListView: 2,
