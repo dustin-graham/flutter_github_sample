@@ -149,7 +149,7 @@ class RepoSearchList extends StatelessWidget {
             final searchTerm = searchTerms[index];
             return DetailsScreen(
               appBar: AppBar(title: Text(searchTerm), automaticallyImplyLeading: !tablet, elevation: 0,),
-              body: RepoResultsList(
+              body: RepoResultsScreen(
                 key: Key("results-$searchTerm}"),
                 searchTerm: searchTerm,
               ),
@@ -160,6 +160,7 @@ class RepoSearchList extends StatelessWidget {
               title: Text("App Bar"),
             ),
           ],
+          tabletFlexListView: 2,
           itemCount: searchTerms.length,
           itemBuilder: (context, index) {
             final term = searchTerms[index];
@@ -174,16 +175,16 @@ class RepoSearchList extends StatelessWidget {
   }
 }
 
-class RepoResultsList extends StatefulWidget {
+class RepoResultsScreen extends StatefulWidget {
   final String searchTerm;
 
-  const RepoResultsList({Key key, this.searchTerm}) : super(key: key);
+  const RepoResultsScreen({Key key, this.searchTerm}) : super(key: key);
 
   @override
-  _RepoResultsListState createState() => _RepoResultsListState();
+  _RepoResultsScreenState createState() => _RepoResultsScreenState();
 }
 
-class _RepoResultsListState extends State<RepoResultsList> {
+class _RepoResultsScreenState extends State<RepoResultsScreen> {
   RepoSearchBloc searchBloc;
 
   @override
@@ -201,6 +202,7 @@ class _RepoResultsListState extends State<RepoResultsList> {
 
   @override
   Widget build(BuildContext context) {
+    bool isTablet = MediaQuery.of(context).size.width > 720;
     return Scaffold(
       body: StreamBuilder<RepoSearchState>(
         stream: searchBloc.state,
@@ -223,31 +225,126 @@ class _RepoResultsListState extends State<RepoResultsList> {
           } else {
             final SearchQueryStateLoaded loaded = searchState;
             final repos = loaded.repositories;
-            return ListView.separated(
-              itemBuilder: (context, index) {
-                final repo = repos[index];
-                return ListTile(
-                  key: Key(repo.sshUrl),
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(repo.owner.avatarUrl),
-                  ),
-                  title: Text(repo.name),
-                  subtitle: Text(repo.sshUrl),
-                  trailing: RepoStars(repo),
-                  onTap: () {},
-                );
-              },
-              separatorBuilder: (context, index) {
-                return const Divider();
-              },
-              itemCount: repos.length,
-            );
+            if (isTablet) {
+              return RepositoryGrid(repos: repos,);
+            } else {
+              return ResultsList(repos: repos,);
+            }
           }
         },
       ),
     );
   }
 }
+
+class ResultsList extends StatelessWidget {
+  final List<Repository> repos;
+
+  const ResultsList({Key key, this.repos}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      itemBuilder: (context, index) {
+        final repo = repos[index];
+        return ListTile(
+          key: Key(repo.sshUrl),
+          leading: CircleAvatar(
+            backgroundImage: NetworkImage(repo.owner.avatarUrl),
+          ),
+          title: Text(repo.name),
+          subtitle: Text(repo.sshUrl),
+          trailing: RepoStars(repo),
+          onTap: () {},
+        );
+      },
+      separatorBuilder: (context, index) {
+        return const Divider();
+      },
+      itemCount: repos.length,
+    );
+  }
+}
+
+class RepositoryGrid extends StatelessWidget {
+  final List<Repository> repos;
+
+  const RepositoryGrid({Key key, this.repos}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      padding: EdgeInsets.all(4.0),
+      itemCount: repos.length,
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 300, childAspectRatio: 1.6),
+      itemBuilder: (context, index) {
+        final repo = repos[index];
+        var textTheme = Theme.of(context).textTheme;
+        return Card(
+          key: Key(repo.sshUrl),
+          child: Container(
+            width: double.infinity,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          repo.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: textTheme.title,
+                        ),
+                        Text(
+                          repo.sshUrl,
+                          maxLines: 1,
+                          style: textTheme.caption,
+                        ),
+                        Container(
+                          height: 4,
+                        ),
+                        Expanded(
+                          child: Text(
+                            repo.description ?? "No Description Available",
+                            maxLines: 2,
+                            style: textTheme.body1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  Container(
+                    height: 38,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: <Widget>[
+                        AspectRatio(
+                          aspectRatio: 1,
+                          child: CircleAvatar(
+                            backgroundImage: NetworkImage(repo.owner.avatarUrl),
+                          ),
+                        ),
+                        RepoStars(repo),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 
 class RepoStars extends StatelessWidget {
   final Repository repo;
