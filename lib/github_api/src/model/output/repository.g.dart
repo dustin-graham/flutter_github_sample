@@ -47,7 +47,6 @@ class _$RepositorySerializer implements StructuredSerializer<Repository> {
         ..add(serializers.serialize(object.description,
             specifiedType: const FullType(String)));
     }
-
     return result;
   }
 

@@ -38,7 +38,6 @@ class _$OrganizationSerializer implements StructuredSerializer<Organization> {
         ..add(serializers.serialize(object.type,
             specifiedType: const FullType(String)));
     }
-
     return result;
   }
 

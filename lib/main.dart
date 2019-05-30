@@ -1,38 +1,17 @@
-import 'dart:io';
-
 import 'package:bloc/bloc.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter_github/material.dart';
 import 'package:flutter_github/repo_search_provider.dart';
 import 'package:graphql_dart/graphql_dart.dart';
 import 'package:http/http.dart';
 import 'package:responsive_scaffold/responsive_scaffold.dart';
-import 'package:flutter/foundation.dart'
-    show debugDefaultTargetPlatformOverride;
 
 import 'bloc/repo_search/repo_search.dart';
 import 'github_api/github_api.dart';
 import 'github_api_extensions/discriminator.dart' as Discriminator;
 
 void main() async {
-  BlocSupervisor.delegate = BasicBlocDelegate();
   Discriminator.setupDiscriminator();
-  _setTargetPlatformForDesktop();
   runApp(MyApp());
-}
-
-/// If the current platform is desktop, override the default platform to
-/// a supported platform (iOS for macOS, Android for Linux and Windows).
-/// Otherwise, do nothing.
-void _setTargetPlatformForDesktop() {
-  TargetPlatform targetPlatform;
-  if (Platform.isMacOS) {
-    targetPlatform = TargetPlatform.iOS;
-  } else if (Platform.isLinux || Platform.isWindows) {
-    targetPlatform = TargetPlatform.android;
-  }
-  if (targetPlatform != null) {
-    debugDefaultTargetPlatformOverride = targetPlatform;
-  }
 }
 
 class MyApp extends StatefulWidget {
@@ -58,7 +37,7 @@ class _MyAppState extends State<MyApp> {
   void _initializeClient() async {
     final client = Client();
     final url = "https://api.github.com/graphql";
-    final token = await DefaultAssetBundle.of(context).loadString("assets/.github_key.txt");
+    final token = await DefaultAssetBundle.of(context).loadString(".github_key.txt");
     setState(() {
       final gqlClient = GQLClient(client, url, "Bearer $token");
       searchBloc = RepoSearchBloc(gqlClient);
@@ -168,7 +147,11 @@ class RepoSearchList extends StatelessWidget {
           detailBuilder: (context, index, tablet) {
             final searchTerm = searchTerms[index];
             return DetailsScreen(
-              appBar: AppBar(title: Text(searchTerm), automaticallyImplyLeading: !tablet, elevation: 0,),
+              appBar: AppBar(
+                title: Text(searchTerm),
+                automaticallyImplyLeading: !tablet,
+                elevation: 0,
+              ),
               body: RepoResultsScreen(
                 key: Key("results-$searchTerm}"),
                 searchTerm: searchTerm,
@@ -246,9 +229,13 @@ class _RepoResultsScreenState extends State<RepoResultsScreen> {
             final SearchQueryStateLoaded loaded = searchState;
             final repos = loaded.repositories;
             if (isTablet) {
-              return RepositoryGrid(repos: repos,);
+              return RepositoryGrid(
+                repos: repos,
+              );
             } else {
-              return ResultsList(repos: repos,);
+              return ResultsList(
+                repos: repos,
+              );
             }
           }
         },
@@ -261,6 +248,7 @@ class ResultsList extends StatelessWidget {
   final List<Repository> repos;
 
   const ResultsList({Key key, this.repos}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
@@ -295,8 +283,7 @@ class RepositoryGrid extends StatelessWidget {
     return GridView.builder(
       padding: EdgeInsets.all(4.0),
       itemCount: repos.length,
-      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 300, childAspectRatio: 1.6),
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 300, childAspectRatio: 1.6),
       itemBuilder: (context, index) {
         final repo = repos[index];
         var textTheme = Theme.of(context).textTheme;
@@ -364,7 +351,6 @@ class RepositoryGrid extends StatelessWidget {
     );
   }
 }
-
 
 class RepoStars extends StatelessWidget {
   final Repository repo;

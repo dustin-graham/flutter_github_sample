@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter_github/material.dart';
 import 'package:flutter_github/bloc/repo_search/repo_search.dart';
 
 class RepoSearchProvider extends InheritedWidget {

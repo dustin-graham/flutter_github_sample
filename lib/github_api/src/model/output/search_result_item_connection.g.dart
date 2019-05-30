@@ -34,7 +34,6 @@ class _$SearchResultItemConnectionSerializer
             specifiedType: const FullType(
                 BuiltList, const [const FullType(SearchResultItem)])));
     }
-
     return result;
   }
 

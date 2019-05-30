@@ -37,7 +37,6 @@ class _$UserSerializer implements StructuredSerializer<User> {
         ..add(serializers.serialize(object.type,
             specifiedType: const FullType(String)));
     }
-
     return result;
   }
 

@@ -6,27 +6,35 @@ environment:
   sdk: ">=2.1.0 <3.0.0"
 
 dependencies:
-  flutter:
-    sdk: flutter
+  flutter_web: any
+  flutter_web_ui: any
   graphql_dart: any
   http: ^0.12.0+1
   bloc: ^0.14.1
-  responsive_scaffold: ^1.0.0+2
+  responsive_scaffold: any
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
+  flutter_web_test: any
+  build_web_compilers: ^2.1.0
   graphql_client_generator: any
-  build_runner: ^1.1.2
+  build_runner: ^1.5.0
   built_value_generator: ^6.2.0
 
-flutter:
-  uses-material-design: true
-
-  assets:
-    - assets/.github_key.txt
-
+# flutter_web packages are not published to pub.dartlang.org
+# These overrides tell the package tools to get them from GitHub
 dependency_overrides:
+  flutter_web:
+    git:
+      url: https://github.com/flutter/flutter_web
+      path: packages/flutter_web
+  flutter_web_ui:
+    git:
+      url: https://github.com/flutter/flutter_web
+      path: packages/flutter_web_ui
+  flutter_web_test:
+    git:
+      url: https://github.com/flutter/flutter_web
+      path: packages/flutter_web_test
   graphql_client_generator:
     git:
       url: git@github.com:rtafleet/graphql_client_gen_dart.git
@@ -35,3 +43,7 @@ dependency_overrides:
     git:
       url: git@github.com:rtafleet/graphql_client_gen_dart.git
       path: graphql_dart
+  responsive_scaffold:
+    git:
+      url: git@github.com:dustin-graham/plugins-1.git
+      path: packages/responsive_scaffold
