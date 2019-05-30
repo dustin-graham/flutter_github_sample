@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_github/repo_search_provider.dart';
 import 'package:graphql_dart/graphql_dart.dart';
 import 'package:http/http.dart';
+import 'package:responsive_scaffold/responsive_scaffold.dart';
 
 import 'bloc/repo_search/repo_search.dart';
 import 'github_api/github_api.dart';
@@ -121,9 +122,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final searchBloc = RepoSearchProvider.of(context).searchBloc;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
       body: RepoSearchList(),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
@@ -146,25 +144,31 @@ class RepoSearchList extends StatelessWidget {
       initialData: searchBloc.currentState,
       builder: (context, searchState) {
         final searchTerms = searchState.data.searchMap.keys.toList();
-        return ListView.separated(
-            itemBuilder: (context, i) {
-              final term = searchTerms[i];
-              return ListTile(
-                key: Key(term),
-                title: Text(term),
-                onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                    return RepoResultsList(
-                      searchTerm: term,
-                    );
-                  }));
-                },
-              );
-            },
-            separatorBuilder: (context, i) {
-              return Divider();
-            },
-            itemCount: searchTerms.length);
+        return ResponsiveListScaffold.builder(
+          detailBuilder: (context, index, tablet) {
+            final searchTerm = searchTerms[index];
+            return DetailsScreen(
+              appBar: AppBar(title: Text(searchTerm), automaticallyImplyLeading: !tablet, elevation: 0,),
+              body: RepoResultsList(
+                key: Key("results-$searchTerm}"),
+                searchTerm: searchTerm,
+              ),
+            );
+          },
+          slivers: <Widget>[
+            SliverAppBar(
+              title: Text("App Bar"),
+            ),
+          ],
+          itemCount: searchTerms.length,
+          itemBuilder: (context, index) {
+            final term = searchTerms[index];
+            return ListTile(
+              key: Key(term),
+              title: Text(term),
+            );
+          },
+        );
       },
     );
   }
@@ -184,66 +188,63 @@ class _RepoResultsListState extends State<RepoResultsList> {
 
   @override
   void initState() {
+    print("init state with search term: ${widget.searchTerm}");
     super.initState();
     searchBloc = RepoSearchProvider.of(context).searchBloc;
     if (searchBloc.currentState.searchMap[widget.searchTerm] is SearchQueryStateUnloaded) {
+      print("term: ${widget.searchTerm} is unloaded, loading");
       searchBloc.dispatch(LoadSearch(widget.searchTerm));
+    } else {
+      print(searchBloc.currentState.searchMap[widget.searchTerm]);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.searchTerm),
-      ),
       body: StreamBuilder<RepoSearchState>(
-          stream: searchBloc.state,
-          initialData: searchBloc.currentState,
-          builder: (context, searchStateSnapshot) {
-            final searchState = searchStateSnapshot.data.searchMap[widget.searchTerm];
-            if (searchState is SearchQueryStateUnloaded || searchState is SearchQueryStateLoading) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            } else if (searchState is SearchQueryStateLoadFailed) {
-              return Center(
-                child: RaisedButton(
-                  onPressed: () {
-                    searchBloc.dispatch(LoadSearch(widget.searchTerm));
-                  },
-                  child: Text("Retry"),
-                ),
-              );
-            } else {
-              final SearchQueryStateLoaded loaded = searchState;
-              final repos = loaded.repositories;
-              return ListView.separated(
-                  itemBuilder: (context, index) {
-                    final repo = repos[index];
-                    return ListTile(
-                      key: Key(repo.sshUrl),
-                      leading: CircleAvatar(
-                        backgroundImage: NetworkImage(repo.owner.avatarUrl),
-                      ),
-                      title: Text(repo.name),
-                      subtitle: Text(repo.sshUrl),
-                      trailing: RepoStars(repo),
-                      onTap: () {
-//                        Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-//                          return RepositoryDetails(
-//                            repo: repo,
-//                          );
-//                        }));
-                      },
-                    );
-                  },
-                  separatorBuilder: (context, index) {
-                    return const Divider();
-                  },
-                  itemCount: repos.length);
-            }
-          }),
+        stream: searchBloc.state,
+        initialData: searchBloc.currentState,
+        builder: (context, searchStateSnapshot) {
+          final searchState = searchStateSnapshot.data.searchMap[widget.searchTerm];
+          if (searchState is SearchQueryStateUnloaded || searchState is SearchQueryStateLoading) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (searchState is SearchQueryStateLoadFailed) {
+            return Center(
+              child: RaisedButton(
+                onPressed: () {
+                  searchBloc.dispatch(LoadSearch(widget.searchTerm));
+                },
+                child: Text("Retry"),
+              ),
+            );
+          } else {
+            final SearchQueryStateLoaded loaded = searchState;
+            final repos = loaded.repositories;
+            return ListView.separated(
+              itemBuilder: (context, index) {
+                final repo = repos[index];
+                return ListTile(
+                  key: Key(repo.sshUrl),
+                  leading: CircleAvatar(
+                    backgroundImage: NetworkImage(repo.owner.avatarUrl),
+                  ),
+                  title: Text(repo.name),
+                  subtitle: Text(repo.sshUrl),
+                  trailing: RepoStars(repo),
+                  onTap: () {},
+                );
+              },
+              separatorBuilder: (context, index) {
+                return const Divider();
+              },
+              itemCount: repos.length,
+            );
+          }
+        },
+      ),
     );
   }
 }

@@ -11,6 +11,7 @@ dependencies:
   graphql_dart: any
   http: ^0.12.0+1
   bloc: ^0.14.1
+  responsive_scaffold: ^1.0.0+2
 
 dev_dependencies:
   flutter_test:
