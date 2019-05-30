@@ -74,3 +74,4 @@ android/app/.classpath
 android/app/.project
 android/app/.settings/org.eclipse.buildship.core.prefs
 snapshots
+.github_key.txt
